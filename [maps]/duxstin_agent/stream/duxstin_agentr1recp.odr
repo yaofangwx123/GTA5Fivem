@@ -1,0 +1,64 @@
+Version 165 32
+{
+	Shaders
+	{
+		normal.sps
+		{
+			BumpSampler duxstin_agentr1recp\SS_V_distort4_NRM.otx
+			DiffuseSampler duxstin_agentr1recp\ss_v_biofloor2.otx
+			Bumpiness 0.2000000
+			HardAlphaBlend 1.0000000
+			SpecularFalloffMult 150.0000000
+			SpecularFresnel 0.5500000
+			SpecularIntensityMult 0.4000000
+			UseTessellation 0.0000000
+		}
+		default_spec.sps
+		{
+			DiffuseSampler duxstin_agentr1recp\SS_V_woodpanel3.otx
+			SpecularFalloffMult 200.0000000
+			SpecularFresnel 0.3000000
+			SpecularIntensityMult 0.6000000
+			UseTessellation 0.0000000
+		}
+		default_spec.sps
+		{
+			DiffuseSampler duxstin_agentr1recp\SS_V_walnutwood.otx
+			SpecularFalloffMult 100.0000000
+			SpecularFresnel 0.5000000
+			SpecularIntensityMult 0.2000000
+			UseTessellation 0.0000000
+		}
+		spec_reflect.sps
+		{
+			DiffuseSampler duxstin_agentr1recp\SS_V_whiteplastic.otx
+			EnvironmentSampler duxstin_agentr1recp\SS_V_reflect2b_R.otx
+			SpecSampler duxstin_agentr1recp\SS_V_whiteplastic.otx
+			HardAlphaBlend 1.0000000
+			ReflectivePower 0.3000000
+			SpecMapIntMask 1.0000000 0.0000000 0.0000000
+			SpecularFalloffMult 160.0000000
+			SpecularFresnel 0.4500000
+			SpecularIntensityMult 0.8000000
+			UseTessellation 0.0000000
+		}
+	}
+	Skeleton null
+	LodGroup
+	{
+		High 9998.0
+		{
+			duxstin_agentr1recp\duxstin_agentr1recp.mesh 0
+		}
+		Med 9998.0
+		Low 9998.0
+		Vlow 9998.0
+		AABBMin -1.7761230 -2.6566415 -1.6125491
+		AABBMax 1.7761240 2.6566415 1.6125491
+		Radius 3.57948
+		Center 0.0000005 0.0000000 0.0000000
+	}
+	Light duxstin_agentr1recp\duxstin_agentr1recp.light
+	Bound duxstin_agentr1recp\duxstin_agentr1recp.bound
+	Joints null
+}

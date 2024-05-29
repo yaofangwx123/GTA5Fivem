@@ -1,0 +1,223 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+   <link rel="stylesheet" href="./element.css" type="text/css" />
+   <link rel="stylesheet" href="./style.css" type="text/css" />
+	
+	
+  </head>
+  <body>
+    
+	<div id="app" style="width: 100%;height: 100%;display: flex;align-items: center;justify-content: center;" v-cloak>
+	
+	
+		<div class="menu_parent panelBig">
+	
+	
+			<el-container v-if="company">
+				<el-header>
+					<el-row type="flex" class="row-bg" justify="end" align="middle">
+						<el-col :span="23">
+							<h2 style="text-align: center;">{{company.name}}</h2>
+						</el-col>
+					
+						<el-col :span="1"><img width="34px" height="34px" v-on:click="close"
+								src="close_64.png" /></el-col>
+					</el-row>
+				</el-header>
+				<el-main>
+
+					<el-tabs v-model="activeName" stretch="true" @tab-click="handleClick">
+						
+						<el-tab-pane :label="local('curproj')" name="project">
+					
+					
+						 <el-tabs v-model="projectSelectName"  @tab-click="handleClickProjects" type="border-card" stretch>
+						    <el-tab-pane v-for="project in company.projects" :label="project.name" :name="project.name">
+								
+								
+								<div>
+									<el-form ref="form" :model="project" label-width="80px">
+										<el-form-item :label="local('adminman')">
+											
+											<div style="display: inline-flex;flex-direction: column;justify-content: center;" @click="clickProAdmin(project)">
+												<div style="display: inline;text-align: center;">
+													<el-image
+													   style="width: 50px; height: 50px;border-radius: 50%"
+													   :src="getheadUrl(project.admin?project.admin.model:'')"
+														  fit="cover"				
+													   />
+												</div>
+												   <label style="text-align: center;font-weight: bold;">{{project.admin?project.admin.name+'['+project.admin.departmentName+']':''}}</label>
+											</div>
+											
+											
+											
+										</el-form-item>
+												
+										<el-form-item :label="local('payback')">
+											<label style="font-weight: bold;color: red;font-size: medium;">{{project.reward}}</label>
+										</el-form-item>
+										
+										<el-form-item :label="local('endtime')" class="shortInput">
+											<label>{{project.endTime_}}</label>
+										</el-form-item>
+										
+										<el-form-item :label="local('createprojtime')" class="shortInput">
+											<label>{{project.createTime_}}</label>
+										</el-form-item>
+										
+										<el-form-item :label="local('projprocess')">
+											
+											
+											<el-row>
+											  <el-col v-for="task in project.tasks" :span="4">
+												  <div class="grid-content bg-purple-dark" style="display: flex;flex-direction: column;align-items: center;">
+												  	<el-progress :define-back-color="processBg" type="circle":percentage="getTaskProc(task)"></el-progress>
+												  	<label>{{task.name}}</label>
+												  </div>
+											  </el-col>
+											</el-row> 
+											
+											
+										<!-- 	<el-tabs v-model="projectSelectName">
+											    <el-tab-pane v-for="project in company.projects" :label="project.name" :name="project.name">
+													
+													<el-row>
+														  <el-col v-for="task in project.tasks" :span="4">
+															  <div class="grid-content bg-purple-dark" style="display: flex;flex-direction: column;align-items: center;">
+															  	<el-progress :define-back-color="processBg" type="circle":percentage="getTaskProc(task)"></el-progress>
+															  	<label>{{task.name}}</label>
+															  </div>
+														  </el-col>
+														</el-row>
+													
+													
+												</el-tab-pane>
+											
+											  </el-tabs> -->
+											
+											
+										</el-form-item>
+										
+									</el-form>
+								</div>
+								
+								
+							</el-tab-pane>
+						  </el-tabs>
+					
+					
+						
+											
+						</el-tab-pane>
+						
+						<el-tab-pane :label="local('findetail')" name="finance">
+							
+							<el-row v-if="financeData" style="margin-top: 10px;margin-bottom: 10px;" justify="center" type="flex">
+							  <el-col :span="6">
+								  <span style="font-size: large;font-weight: bold;">{{local('fintotalin')}}</span>
+								  <span style="font-size: larger;color: #00a500;margin-left: 6px;font-weight: bold;">{{financeData[1].money}}</span>
+							  </el-col>
+							  <el-col :span="6">
+								  <span style="font-size: large;font-weight: bold;">{{local('fintotalout')}}</span>
+								  <span style="font-size: larger;color: #cc0000;margin-left: 6px;font-weight: bold;">{{financeData[0].money}}</span>
+							  </el-col>
+							  
+							  <el-col :span="6">
+								  <span style="font-size: large;font-weight: bold;">{{financeData[1].money - financeData[0].money > 0?local('inmore'):local('outmore')}}</span>
+								  <span style="font-size: larger;margin-left: 6px;font-weight: bold;" :style="{color:financeData[1].money - financeData[0].money>0?'#00a500':'#cc0000'}">{{Math.abs(financeData[0].money - financeData[1].money)}}</span>
+							  </el-col>
+							  
+							  <el-col :span="6">
+								  <el-button type="primary" @click="goLastPager">{{local('lastpager')}}</el-button>
+								  <el-button type="primary" @click="goNextPager">{{local('nextpager')}}</el-button>
+							  </el-col>
+							  
+							</el-row>
+							
+							<el-table :data="fianaces[financePage]" max-height="600" stripe
+								style="width: 100%;height: 100%;margin-top: 10px;">
+								<el-table-column :label="local('type')" width="150">
+									
+									 <template slot-scope="scope">
+									        <span>{{ subType[scope.row.subType]}}</span>
+									 </template>
+									
+								</el-table-column>
+								<el-table-column :label="local('money')" width="150">
+									<template slot-scope="scope">
+									       <span :style="{color:scope.row.mainType==0?'#cc0000':'#00a500'}">{{scope.row.money}}</span>
+									</template>
+								</el-table-column>
+								<el-table-column prop="des" :label="local('mark')" width="150">
+								</el-table-column>
+								
+								<el-table-column :label="local('status')" width="150">
+									
+									 <template slot-scope="scope">
+									        <span  :style="{color:scope.row.status==0?'#cc0000':'#00a500'}">{{ scope.row.status == 0?local('noncomplete'):local('complete')}}</span>
+									 </template>
+									
+								</el-table-column>
+								
+								<el-table-column  :label="local('createtime')">
+									<template slot-scope="scope">
+									       <span>{{getCcTime(scope.row.createTime)}}</span>
+									</template>
+								</el-table-column>
+							</el-table>
+					
+						</el-tab-pane>
+					</el-tabs>	
+
+
+				
+					
+				</el-main>
+				
+			
+				
+			</el-container>
+			
+			
+		</div>
+					
+					
+			<el-dialog
+			 v-if="projectChangeSelect" 
+			 :title="local('choiceadmin')" 
+			
+			 :visible.sync="projectChangeSelect" width = "30%">
+			
+				<div style="display: flex;flex-direction: column;margin: 20px;">
+					<div style="margin-top: 20px;">
+						<el-select v-model="projectChangeSelect.staffId" :placeholder="local('choiceadmin')">
+							<el-option v-for="staff in getProjectStaffs()" :label="staff.name + ' ['+staff.departmentName+'-'+staff.post+']'" :value="staff.id" ></el-option>
+						</el-select>
+					</div>
+								
+					<div slot="footer" class="dialog-footer" style="margin-top: 20px;">
+					
+						<el-button type="primary" @click="changeproadmin()">{{local('confirm')}}</el-button>
+					</div>
+				</div>
+			</el-dialog>		
+					
+					
+		
+	</div>
+	
+	
+	
+	<script src="./vue.js"></script>
+	<script src="./jquery-3.6.4.min.js"></script>
+	<script src="./element.js"></script>
+	<script src="./g.js"></script>
+	<script src="./h.js"></script>
+	<script src="./page_yunying.js"></script>
+	
+  </body>
+</html>

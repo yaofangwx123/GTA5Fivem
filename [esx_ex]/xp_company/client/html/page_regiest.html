@@ -1,0 +1,53 @@
+
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="./element.css" type="text/css" />
+		<link rel="stylesheet" href="./style.css" type="text/css" />
+	</head>
+	<body>
+		
+		<div id = "app" style="width: 100%;height: 100%;display: flex;align-items: center;justify-content: center;">
+		
+			<div class = "menu_parent">
+				<el-row justify = "center" >
+					<!-- <el-col class = "menu_el_co"> <h2>{{local('regiest')}}</h2></el-col>
+				   <el-col class = "menu_el_co"> <el-input minlength = "4" maxlength = "16" v-model="companyName" :placeholder="local('inputcmpname')" ></el-input></el-col>
+				   <el-col class = "menu_el_co"> <el-input minlength = "4" maxlength = "16" v-model="companyCEOName" :placeholder="local('inputyourname')" style="margin-top: 20px;"></el-input></el-col> -->
+				   
+					
+				   
+				   
+				</el-row>
+				
+				
+				<el-form ref="form" :model="companyNew" label-width="80px" :rules="formRules">
+					
+					<el-form-item :label="local('cmpname')" label-width="80px" class="shortInputVerMargin" prop="name">
+						<el-input v-model="companyNew.name"></el-input>
+					</el-form-item>
+					
+					<el-form-item :label="local('cmpcreator')" label-width="80px" class="shortInputVerMargin" prop="ceoName">
+						<el-input v-model="companyNew.ceoName"></el-input>
+					</el-form-item>
+					
+					<el-col :span = "12" class = "menu_el_co"><el-button plain type="primary" v-on:click = "confirm('form')" class = "menue">{{local('confirm')}}</el-button></el-col>
+					 <el-col :span = "12" class = "menu_el_co"><el-button plain type="danger" v-on:click = "cancel" class = "menue">{{local('cancel')}}</el-button></el-col>
+					
+				</el-form>
+				
+			</div>
+			
+			
+		
+		</div>
+		
+		
+		 <script src="./vue.js"></script>
+		 <script src="./jquery-3.6.4.min.js"></script>
+		 <script src="./element.js"></script>
+		 <script src="./g.js"></script>
+		 <script src="./page_regiest.js"></script>
+	</body>
+</html>

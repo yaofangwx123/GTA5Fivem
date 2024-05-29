@@ -1,0 +1,381 @@
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+		<link rel="stylesheet" href="./element.css" type="text/css" />
+		<link rel="stylesheet" href="./style.css" type="text/css" />
+
+
+	</head>
+	<body>
+
+
+
+		<div id="app" v-if="company" style="width: 100%;height: 100%;display: flex;align-items: center;justify-content: center;" v-cloak>
+
+
+			<div class="menu_parent panelBig">
+
+
+				<el-container>
+					<el-header>
+
+						<el-row type="flex" class="row-bg" justify="end" align="middle">
+							<el-col :span="23">
+								<h2 style="text-align: center;">{{company.name}}</h2>
+							</el-col>
+
+							<el-col :span="1"><img width="34px" height="34px" v-on:click="close"
+									src="close_64.png" /></el-col>
+						</el-row>
+
+					</el-header>
+					<el-main>
+
+						<el-tabs v-model="activeName" @tab-click="handleClick" stretch>
+							
+							
+						
+							
+							
+							<el-tab-pane :label="local('staffmanage')" name="staff">
+								<el-row style="margin-top: 10px;margin-bottom: 10px;" type="flex" align="middle">
+								<el-col :span="6">
+										  <span style="font-size: large;font-weight: bold;">{{local('stafftotal')}}</span>
+										  <span style="font-size: larger;color: #0055ff;margin-left: 6px;font-weight: bold;">{{company.staffs.length - 1}}</span>
+									  </el-col>
+								
+								<el-col :span="6">
+										  <span style="font-size: large;font-weight: bold;">{{local('salary')}}</span>
+										  <span style="font-size: larger;color: #0055ff;margin-left: 6px;font-weight: bold;">{{getSalary()}}</span>
+								</el-col>
+								
+								<el-col :span="12">
+										 <el-button plain type="primary" v-on:click="moreChoice">{{local('morechoice')}}</el-button>
+										 <el-button plain type="primary" v-on:click="openMeeting" :disabled="company == null || company.meetingTime != 0 || selectionStaffs.length == 0">{{local('openmeeting')}} {{company.meetingTime }}</el-button>
+										 <el-button plain type="warn" v-on:click="stopMeeting" :disabled="company == null || company.meetingTime == 0">{{local('stopmeeting')}}</el-button>
+										 
+								</el-col>
+								</el-row>
+								
+								<!-- <el-tree :data="company.tree" :props="defaultProps" @node-click="handleNodeClick"></el-tree> -->
+								
+								<el-table :data="company.tree" max-height="600" 
+								  row-key="id"
+								  border
+								 :tree-props="{children: 'children'}"
+								@row-click="rowClickStaff" stripe
+								@selection-change="handleSelectionStaffsChange"
+									style="width: 100%;height: 100%;margin-top: 10px;">
+									  <el-table-column
+										  v-if="selectionEnable"
+									      type="selection"
+									      width="55">
+									    </el-table-column>
+										
+									<el-table-column prop="departmentGroup" :label="local('department')" width="180">
+									</el-table-column>	
+										
+										
+									<el-table-column label="" width="100">
+										
+										   
+										    <template slot-scope="scope">
+										          
+										 
+												  
+												  <el-image v-show="scope.row.model"
+												     style="width: 50px; height: 50px;margin: 20px;border-radius: 50%"
+												     :src="getheadUrl(scope.row.model)"
+												  	  fit="cover"				
+												     />
+												  
+										        </template> 
+										   
+									</el-table-column>
+									
+									
+								
+									<el-table-column prop="name" :label="local('name')" width="100">
+										
+										
+										<template slot-scope="scope">
+										      
+																				 
+											  
+											  <label>{{scope.row.leaderId?'':scope.row.name}}</label>
+											  
+										    </template> 
+										
+										
+									</el-table-column>
+									<el-table-column prop="sex_" :label="local('sex')" width="80" >
+									</el-table-column>
+								
+									<el-table-column prop="post" :label="local('post')" width="100" >
+									</el-table-column>
+									<el-table-column prop="salary" :label="local('salary')" width="80" >
+									</el-table-column>
+									<el-table-column prop="honest" :label="local('honest')" width="80" >
+									</el-table-column>
+									
+									<el-table-column prop="ability" :label="local('ability')" width="80" >
+									</el-table-column>
+									
+									<el-table-column prop="createTime_" :label="local('createtime')" >
+									</el-table-column>
+								</el-table>
+								
+								
+								
+							</el-tab-pane>
+							
+							
+							
+							
+						<!-- <el-tab-pane :label="local('dpmanage')" name="department">
+							
+							
+			
+						
+						
+						<el-tree default-expand-all :data="departmentsTree" :props="treeDpPro" @node-contextmenu="rowRightClickDepartment"></el-tree>
+						
+						
+							</el-tab-pane> -->
+						
+						
+						
+							
+							<el-tab-pane :label="local('comnotification')" name="notification">
+								<!-- <el-button plain type="primary" v-on:click="addDepartment">{{local('adddp')}}</el-button> -->
+								
+								<span slot="label" v-if="unreadedNum !=0"><label style="color: white;border-radius: 50%;background: #db0000;width: 4px;height: 4px;font-size: small;padding: 4px;">{{unreadedNum}}</label> 我的行程</span>
+								
+								
+								<el-table :data="notifications" max-height="600" @row-click="rowClickNotication" stripe
+									style="width: 100%;height: 100%;margin-top: 10px;">
+									<el-table-column prop="mainType" :label="local('type')" width="150">
+										
+										<template slot-scope="scope">
+										        <div slot="reference">
+										          <label size="medium">{{ getMainType(scope.row.mainType) }}</label>
+										        </div>
+										</template>
+										
+										
+									</el-table-column>
+									
+									<el-table-column prop="shortMsg" :label="local('mark')" width="150">
+									</el-table-column>
+									
+									<el-table-column prop="createTime" :label="local('createtime')">
+									</el-table-column>
+									<el-table-column prop="status" :label="local('status')">
+										<template slot-scope="scope">
+										        <div slot="reference">
+												  <el-tag :type="scope.row.status == 1?'success':'danger'"  size="larger">{{ scope.row.status == 1?local('readed'):local('unreaded') }}</el-tag>
+										        </div>
+										</template>
+									</el-table-column>
+									
+								</el-table>
+							
+							</el-tab-pane>
+							
+							
+						
+								
+
+
+						
+
+
+						</el-tabs>
+
+					</el-main>
+				</el-container>
+
+			</div>
+
+			<el-dialog v-if="staffSelect" :title="local('staffedit')" :visible.sync="dialogStaffMenu">
+
+				<!-- <h4 style="background-color: gainsboro;text-align: center;padding: 10px;">权限设置</h4>	 -->
+				<el-form ref="formStaff" :model="staffSelect" label-width="60px" :rules="formRulesStaff">
+					
+				
+					   
+					   <el-form-item :label="local('headicon')">
+					   <el-image
+					      style="width: 100px; height: 100px;border-radius: 50%"
+					      :src="getheadUrl(staffSelect.model)"
+					   	  fit="cover"				
+					      />
+					   </el-form-item>
+					
+					<el-form-item :label="local('name')">
+						<el-input v-model="staffSelect.name"  class="shortInput" disabled></el-input>
+					</el-form-item>
+
+					<el-form-item :label="local('department')" prop="departmentId">
+						<el-select v-model="staffSelect.departmentId" :placeholder="local('choicedp')">
+							<el-option v-for="department in company.departments" :label="department.name"
+								:value="department.id"></el-option>
+						</el-select>
+					</el-form-item>
+					
+					<el-form-item :label="local('post')" prop="post">
+						<el-input v-model="staffSelect.post" class="shortInput"></el-input>
+					</el-form-item>
+					
+					<el-form-item :label="local('salary')">
+						<el-input v-model="staffSelect.salary" class="shortInput" disabled></el-input>
+						
+					</el-form-item>
+					
+					<el-form-item :label="local('seat')" prop="seatId">
+						<el-select v-model="staffSelect.seatId" :placeholder="local('choiceseat')">
+							<el-option v-for="chair in company.chairs" :key="chair.id" :label="chair.txt" :value="chair.id" :disabled="!chair.enable">
+							</el-option>
+						</el-select>
+					</el-form-item>
+
+					<el-form-item :label="local('permisson')">
+						<el-select v-model="staffSelect.permissons" multiple  :placeholder="local('choicepermissons')" @change="$forceUpdate()" :disabled="staffSelect.id == company.myStaffId">
+							<el-option v-for="item in company.permissons" :key="item.id" :label="item.title" :value="item.id" :disabled="item.disabled">
+							</el-option>
+						</el-select>
+					</el-form-item>
+					
+					<el-form-item :label="local('honest')">
+						<el-input v-model="staffSelect.honest" class="shortInput" disabled></el-input>
+						 
+					</el-form-item>
+					
+					<el-form-item :label="local('ability')">
+						
+					
+						
+						<el-row>
+						  <el-col v-for="skill in staffSelect.skills_" :span="4">
+							  <div class="grid-content bg-purple-dark" style="display: flex;flex-direction: column;align-items: center;">
+							  	<el-progress :define-back-color="processBg" type="circle":percentage="skill.value"></el-progress>
+							  	<label>{{skill.name}}</label>
+							  </div>
+						  </el-col>
+						</el-row>
+						
+					</el-form-item>
+
+				</el-form>
+
+
+				<div slot="footer" class="dialog-footer">
+					<el-button type="primary" @click="back2Seat">{{local('back2seat')}}</el-button>
+					<el-button type="primary" @click="addStaffSalary">{{local('addsalary')}}</el-button>
+					<el-button type="warning" @click="fireStaff">{{local('fire')}}</el-button>
+					<el-button type="success" @click="updateStaff('formStaff')">{{local('update')}}</el-button>
+					<el-button type="danger"  @click="dialogStaffMenu = false">{{local('cancel')}}</el-button>
+					
+				</div>
+			</el-dialog>
+
+
+
+			<el-dialog v-if="dialogDepartmentType >= 2" :title="titleDepartmentDialog" :visible.sync = "vv" width="20%">
+
+				<div style="margin: 20px;">
+					<el-form ref="formDepartment" :rules="formRulesDepartment" :model="departmentSelect" label-width="80px">
+						<el-form-item :label="local('named')" prop="name">
+							<el-input v-model="departmentSelect.name"  class="shortInput"></el-input>
+						</el-form-item>
+					
+						<el-form-item :label="local('dpleader')" prop="leaderId">
+							<el-select v-model="departmentSelect.leaderId" :placeholder="local('choicedpleader')">
+								<el-option v-for="staff in getDpStaffsStatusList()" :label="staff.name + ' ['+staff.departmentName+'-'+staff.post+']'" :value="staff.id" :disabled="!staff.dpSelect"></el-option>
+							</el-select>
+						</el-form-item>
+					
+						<el-form-item :label="local('dpup')" prop="upDepartmentId">
+							<el-select v-model="departmentSelect.upDepartmentId" :placeholder="local('choicedp')" :disabled="dialogDepartmentType == 2">
+								<el-option v-for="department in company.departments" :label="department.name"
+									:value="department.id" :disabled="department.dpselected"></el-option>
+							</el-select>
+						</el-form-item>
+					
+					</el-form>
+					
+					<div slot="footer" class="dialog-footer">
+						<!-- <el-button type="danger" @click="deleteDepartment()">{{local('delete')}}</el-button> -->
+						<el-button @click="dialogDepartmentType = -1;vv = false">{{local('cancel')}}</el-button>
+						<el-button type="primary" @click="departmentConfirm('formDepartment')">{{local('confirm')}}</el-button>
+					</div>
+				</div>
+			</el-dialog>
+			
+			
+			
+			
+			<!-- <el-dialog v-if="departmentSelect" title="添加部门" :visible.sync="dialogDepartmentAdd">
+			
+				<el-form ref="form" :model="departmentAdd" label-width="80px">
+					<el-form-item label="名称">
+						<el-input v-model="departmentAdd.name"></el-input>
+					</el-form-item>
+			
+					<el-form-item label="主管">
+						<el-select v-model="departmentAdd.leaderName" placeholder="选择部门主管">
+							<el-option v-for="staff in staffs" :label="staff.name" :value="staff.id"></el-option>
+						</el-select>
+					</el-form-item>
+			
+					<el-form-item label="上级部门">
+						<el-select v-model="departmentAdd.upDepartmentId" placeholder="选择上级部门">
+							<el-option v-for="department in departments" :label="department.name"
+								:value="department.id"></el-option>
+						</el-select>
+					</el-form-item>
+			
+				</el-form>
+			
+				<div slot="footer" class="dialog-footer">
+					<el-button @click="dialogDepartmentAdd = false">取 消</el-button>
+					<el-button type="primary" @click="updateDepartment">确 定</el-button>
+				</div>
+			</el-dialog> -->
+			
+			
+			<el-dialog
+			 v-if="dialogDepartmentType == 0" 
+			
+			 :title="titleDepartmentDialog" 
+			 :visible.sync = "vv"
+			  width = "20%" center>
+			
+				<div style="display: flex;flex-direction: column;margin: 20px;align-items: center;">
+					
+	
+					
+					
+					<el-button type="danger" @click="departmentMenuChoice(1)" style="margin-top: 20px;width: 50%;" :disabled="departmentSelect.children.length !=0 || !departmentSelect.upDepartmentId">删除</el-button>
+					<el-button type="success" @click="departmentMenuChoice(2)" style="margin-top: 20px;width: 50%;"  >新建</el-button>
+					<el-button type="primary" @click="departmentMenuChoice(3)" style="margin-top: 20px;width: 50%;"  :disabled="!departmentSelect.upDepartmentId">编辑</el-button>
+				</div>
+			</el-dialog>
+
+
+		</div>
+
+
+		<script src="./vue.js"></script>
+		<script src="./jquery-3.6.4.min.js"></script>
+		<script src="./element.js"></script>
+		<script src="./g.js"></script>
+		<script src="./h.js"></script>
+		<script src="./httpVueLoader.js"></script>
+		<script src="./page_staff.js"></script>
+
+
+	</body>
+</html>

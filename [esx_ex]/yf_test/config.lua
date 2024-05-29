@@ -1,0 +1,10 @@
+Config                            = {}
+Config.Locale = GetConvar('esx:locale', 'zh-cn')
+Config.rentCarPrice               = 2
+Config.rentCarInterval            = 2
+Config.rentCarDamagePay           = 2
+Config.enableDriveOtherCar        = false
+Config.killPedFine                = 100000
+Config.VehicleOldBody             = 1
+Config.VehicleOldTank             = 1
+Config.VehicleOldEngine           = 10

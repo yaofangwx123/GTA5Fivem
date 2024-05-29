@@ -1,0 +1,424 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    
+	<link rel="stylesheet" href="./element.css" type="text/css" />
+	<link rel="stylesheet" href="./style.css" type="text/css" />
+   
+ 
+   
+	
+  </head>
+  <body>
+    
+	<div id = "app" v-if="isShowMenu" style="width: 100%;height: 100%;display: flex;align-items: center;justify-content: center;" v-cloak>
+	
+		<el-row  justify = "center" class = "menu_parent">
+			<div v-show="dialogType == 0">
+				<el-col  class = "menu_el_co"> <h2>{{company&&company.id?company.name:local('index-regiest')}}<h2></el-col>
+				<el-col v-if = "debug || !isShowRegCompany()" class = "menu_el_co"><el-button plain type="primary" v-on:click = "goPager('page_staff.html')" class = "menue">{{local('index-group')}}</el-button></el-col>
+				<el-col v-if = "debug || !isShowRegCompany()"  class = "menu_el_co"><el-button plain type="primary" v-on:click = "goPager('page_business.html')" class = "menue">{{local('index-task')}}</el-button></el-col>
+				<el-col v-if = "debug || !isShowRegCompany()"  class = "menu_el_co"><el-button plain type="primary" v-on:click = "goPager('page_yunying.html')" class = "menue">{{local('index-buiness')}}</el-button></el-col>
+				<el-col v-if = "debug || isShowRegCompany()"  class = "menu_el_co"><el-button plain type="primary" v-on:click = "goPager('page_regiest.html')" class = "menue">{{local('index-regiest')}}</el-button></el-col>
+				<el-col class = "menu_el_co"><el-button plain type="danger" v-on:click = "exit" class = "menue">{{local('index-exithtml')}}</el-button></el-col>
+			</div>
+		</el-row>
+	
+	
+	
+		<el-dialog v-if="staffHire" :title="local('index-staffhire-getpost')" :visible.sync="isShowDialog(2)" :show-close="dialogAttr" :close-on-press-escape="dialogAttr" :close-on-click-modal="dialogAttr" :modal-append-to-body="dialogAttr">
+		
+			<!-- <h4 style="background-color: gainsboro;text-align: center;padding: 10px;">权限设置</h4>	 -->
+			<el-form ref="form" :model="staffHire" label-width="60px">
+				
+				 <img
+				    style="width: 150px; height: 150px;margin: 20px;border-radius: 50%"
+				    :src="getheadUrl(staffHire.model)"
+				 					
+				    />
+				
+				<el-form-item :label="local('name')">
+					<el-input v-model="staffHire.name" class="shortInput" disabled></el-input>
+				</el-form-item>
+		
+				<el-form-item :label="local('department')">
+					<el-input v-model="staffHire.departmentName" class="shortInput" disabled></el-input>
+				</el-form-item>
+				
+				<el-form-item :label="local('post')" class="shortInput">
+					<el-input v-model="staffHire.post" disabled></el-input>
+				</el-form-item>
+				
+				<el-form-item :label="local('salary')" class="shortInput">
+					<el-input v-model="staffHire.salary" disabled></el-input>
+				</el-form-item>
+				
+				<el-form-item :label="local('seat')" class="shortInput">
+					<el-input v-model="staffHire.seatName" disabled></el-input>
+				</el-form-item>
+				
+				<el-form-item :label="local('honest')" class="shortInput">
+					<el-input v-model="staffHire.honest" disabled></el-input>
+				</el-form-item>
+				
+				<el-form-item :label="local('ability')">
+					
+				
+					
+					<el-row>
+					  <el-col v-for="skill in staffHire.skills" :span="4">
+						  <div class="grid-content bg-purple-dark" style="display: flex;flex-direction: column;align-items: center;">
+						  	<el-progress :define-back-color="processBg" type="circle":percentage="skill.value"></el-progress>
+						  	<label>{{skill.name}}</label>
+						  </div>
+					  </el-col>
+					</el-row>
+					
+				</el-form-item>
+				
+			<!-- 	<el-form-item label="座位号" class="shortInput">
+					<el-select v-model="staffHire.seatId" placeholder="选择座位">
+						<el-option v-for="chair in company.chairs" :key="chair.id" :label="chair.txt" :value="chair.id" :disabled="!chair.enable">
+						</el-option>
+					</el-select>
+				</el-form-item> -->
+		
+				<!-- <el-form-item label="权限">
+					<el-select v-model="staffHire.permissons" multiple placeholder="选择权限">
+						<el-option v-for="item in permissons" :key="item.id" :label="item.title" :value="item.id">
+						</el-option>
+					</el-select>
+				</el-form-item> -->
+		
+			</el-form>
+		
+		
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="hireStaff(false)">{{local('reject')}}</el-button>
+				<el-button type="primary" @click="hireStaff(true)">{{local('hire')}}</el-button>
+			</div>
+		</el-dialog>
+		
+		
+		
+		<el-dialog v-if="project" :title="local('customrequst')" :visible.sync="isShowDialog(4)" :show-close="dialogAttr" :close-on-press-escape="dialogAttr" :close-on-click-modal="dialogAttr" :modal-append-to-body="dialogAttr">
+		
+			<!-- <h4 style="background-color: gainsboro;text-align: center;padding: 10px;">权限设置</h4>	 -->
+			<el-form ref="form" :model="project" label-width="80px">
+				
+				
+				<el-form-item :label="local('named')">
+					<el-input v-model="project.name" class="shortInput" disabled></el-input>
+				</el-form-item>
+		
+				<el-form-item :label="local('payback')">
+					<el-input v-model="project.reward" class="shortInput" disabled></el-input>
+				</el-form-item>
+				
+				<el-form-item :label="local('endtime')" class="shortInput">
+					<el-input v-model="project.endTime_" disabled></el-input>
+				</el-form-item>
+				
+				<el-form-item :label="local('createprojtime')" class="shortInput">
+					<el-input v-model="project.createTime_" disabled></el-input>
+				</el-form-item>
+				
+			<!-- 	
+				<el-form-item label="任务量">
+					
+				
+					
+					<el-row>
+					  <el-col v-for="skill in staffHire.skills" :span="4">
+						  <div class="grid-content bg-purple-dark" style="display: flex;flex-direction: column;align-items: center;">
+						  	<el-progress :define-back-color="processBg" type="circle":percentage="skill.value"></el-progress>
+						  	<label>{{skill.name}}</label>
+						  </div>
+					  </el-col>
+					</el-row>
+					
+				</el-form-item> -->
+				
+			<!-- 	<el-form-item label="座位号" class="shortInput">
+					<el-select v-model="staffHire.seatId" placeholder="选择座位">
+						<el-option v-for="chair in company.chairs" :key="chair.id" :label="chair.txt" :value="chair.id" :disabled="!chair.enable">
+						</el-option>
+					</el-select>
+				</el-form-item> -->
+		
+				<!-- <el-form-item label="权限">
+					<el-select v-model="staffHire.permissons" multiple placeholder="选择权限">
+						<el-option v-for="item in permissons" :key="item.id" :label="item.title" :value="item.id">
+						</el-option>
+					</el-select>
+				</el-form-item> -->
+		
+			</el-form>
+		
+		
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="projectResult(false)">{{local('reject')}}</el-button>
+				<el-button type="primary" @click="projectResult(true)">{{local('recive')}}</el-button>
+			</div>
+		</el-dialog>
+		
+		<el-dialog v-if="finance" :title="local('salaryconfirm')" :visible.sync="isShowDialog(1)" :show-close="dialogAttr" :close-on-press-escape="dialogAttr" :close-on-click-modal="dialogAttr" :modal-append-to-body="dialogAttr">
+		
+			<el-row style="margin-top: 10px;margin-left: 20px;">
+			  <el-col :span="6">
+				  <span style="font-size: large;">{{local('money')}}</span>
+				  <span style="font-size: larger;color: #ed0000;margin-left: 6px;font-weight: bold;">{{finance.money}}</span>
+			  </el-col>
+				
+			</el-row>
+			
+			<el-row style="margin-top: 10px;margin-left: 20px;">
+			  
+			  <el-col :span="6">
+				  <span style="font-size: large;">{{local('detail')}}</span>
+				  <span style="font-size: larger;color: #55aaff;margin-left: 6px;font-weight: bold;">{{finance.des}}</span>
+			  </el-col>
+				
+			</el-row>
+					
+		
+		
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="financeResult(false)">{{local('delay')}}</el-button>
+				<el-button type="primary" @click="financeResult(true)">{{local('confirm')}}</el-button>
+			</div>
+		</el-dialog>
+		
+		
+		<el-dialog v-if="finance" :title="local('projectfire')" :visible.sync="isShowDialog(42)" :show-close="dialogAttr" :close-on-press-escape="dialogAttr" :close-on-click-modal="dialogAttr" :modal-append-to-body="dialogAttr">
+		
+			<el-row style="margin-top: 10px;margin-left: 20px;">
+			  <el-col :span="6">
+				  <span style="font-size: large;">{{local('money')}}</span>
+				  <span style="font-size: larger;color: #ed0000;margin-left: 6px;font-weight: bold;">{{finance.money}}</span>
+			  </el-col>
+				
+			</el-row>
+			
+			<el-row style="margin-top: 10px;margin-left: 20px;">
+			  
+			  <el-col :span="6">
+				  <span style="font-size: large;">{{local('detail')}}</span>
+				  <span style="font-size: larger;color: #55aaff;margin-left: 6px;font-weight: bold;">{{finance.des}}</span>
+			  </el-col>
+				
+			</el-row>
+					
+		
+		
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="financeResult(false)">{{local('delay')}}</el-button>
+				<el-button type="primary" @click="financeResult(true)">{{local('confirm')}}</el-button>
+			</div>
+			
+			
+			
+		</el-dialog>
+		
+		
+		<el-dialog v-if="staffReqSalary.length != 0" :title="local('index-reqpullsalary')" :visible.sync="isShowDialog(5)" :show-close="dialogAttr" :close-on-press-escape="dialogAttr" :close-on-click-modal="dialogAttr" :modal-append-to-body="dialogAttr">
+		
+			<!-- <h4 style="background-color: gainsboro;text-align: center;padding: 10px;">权限设置</h4>	 -->
+			<el-form ref="form" :model="staffReqSalary[0]" label-width="60px">
+				
+				 <img
+				    style="width: 150px; height: 150px;margin: 20px;border-radius: 50%"
+				    :src="getheadUrl(staffReqSalary[0].model)"
+				 					
+				    />
+				
+				<el-form-item :label="local('name')">
+					<el-input v-model="staffReqSalary[0].name" class="shortInput" disabled></el-input>
+				</el-form-item>
+		
+				<el-form-item :label="local('department')">
+					<el-input v-model="staffReqSalary[0].departmentName" class="shortInput" disabled></el-input>
+				</el-form-item>
+				
+				<el-form-item :label="local('post')" class="shortInput">
+					<el-input v-model="staffReqSalary[0].post" disabled></el-input>
+				</el-form-item>
+				
+				<el-form-item :label="local('salary')" class="shortInput">
+					<el-input v-model="staffReqSalary[0].salary" disabled></el-input>
+				</el-form-item>
+	
+				
+				<el-form-item :label="local('honest')" class="shortInput">
+					<el-input v-model="staffReqSalary[0].honest" disabled></el-input>
+				</el-form-item>
+				
+				<el-form-item :label="local('ability')">
+					
+				
+					
+					<el-row>
+					  <el-col v-for="skill in staffReqSalary[0].skills" :span="4">
+						  <div class="grid-content bg-purple-dark" style="display: flex;flex-direction: column;align-items: center;">
+						  	<el-progress :define-back-color="processBg" type="circle":percentage="skill.value"></el-progress>
+						  	<label>{{skill.name}}</label>
+						  </div>
+					  </el-col>
+					</el-row>
+					
+				</el-form-item>
+				
+			<!-- 	<el-form-item label="座位号" class="shortInput">
+					<el-select v-model="staffHire.seatId" placeholder="选择座位">
+						<el-option v-for="chair in company.chairs" :key="chair.id" :label="chair.txt" :value="chair.id" :disabled="!chair.enable">
+						</el-option>
+					</el-select>
+				</el-form-item> -->
+		
+				<!-- <el-form-item label="权限">
+					<el-select v-model="staffHire.permissons" multiple placeholder="选择权限">
+						<el-option v-for="item in permissons" :key="item.id" :label="item.title" :value="item.id">
+						</el-option>
+					</el-select>
+				</el-form-item> -->
+		
+			</el-form>
+		
+		
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="pullSalaryStaff(false)">{{local('reject')}}</el-button>
+				<el-button type="primary" @click="pullSalaryStaff(true)">{{local('confirm')}}</el-button>
+			</div>
+		</el-dialog>
+		
+		
+		
+		<el-dialog v-if="staffFire" :title="local('index-offworkreq')" :visible.sync="isShowDialog(3)" :show-close="dialogAttr" :close-on-press-escape="dialogAttr" :close-on-click-modal="dialogAttr" :modal-append-to-body="dialogAttr">
+		
+			<!-- <h4 style="background-color: gainsboro;text-align: center;padding: 10px;">权限设置</h4>	 -->
+			<el-form ref="form" :model="staffFire" label-width="60px">
+				
+				 <img
+				    style="width: 150px; height: 150px;margin: 20px;border-radius: 50%"
+				    :src="getheadUrl(staffFire.model)"
+				 					
+				    />
+				
+				<el-form-item :label="local('name')">
+					<el-input v-model="staffFire.name" class="shortInput" disabled></el-input>
+				</el-form-item>
+		
+				<el-form-item :label="local('department')">
+					<el-input v-model="staffFire.departmentName" class="shortInput" disabled></el-input>
+				</el-form-item>
+				
+				<el-form-item :label="local('post')" class="shortInput">
+					<el-input v-model="staffFire.post" disabled></el-input>
+				</el-form-item>
+				
+				<el-form-item :label="local('salary')" class="shortInput">
+					<el-input v-model="staffFire.salary" disabled></el-input>
+				</el-form-item>
+			
+				
+				<el-form-item :label="local('honest')" class="shortInput">
+					<el-input v-model="staffFire.honest" disabled></el-input>
+				</el-form-item>
+				
+				<el-form-item :label="local('ability')">
+					
+				
+					
+					<el-row>
+					  <el-col v-for="skill in staffFire.skills" :span="4">
+						  <div class="grid-content bg-purple-dark" style="display: flex;flex-direction: column;align-items: center;">
+						  	<el-progress :define-back-color="processBg" type="circle":percentage="skill.value"></el-progress>
+						  	<label>{{skill.name}}</label>
+						  </div>
+					  </el-col>
+					</el-row>
+					
+				</el-form-item>
+				
+		
+			</el-form>
+		
+		
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="staffAutoFire(true)">{{local('agreefire')}}</el-button>
+				<el-button type="primary" @click="staffAutoFire(false)">{{local('addsalaryfire')}}{{'('+agreeTimedown+')'}}</el-button>
+			</div>
+		</el-dialog>
+		
+		
+		
+		<el-dialog v-if="staffReqTmpWork.length != 0" :title="local('index-reqtmpoffwork')" :visible.sync="isShowDialog(6)" :show-close="dialogAttr" :close-on-press-escape="dialogAttr" :close-on-click-modal="dialogAttr" :modal-append-to-body="dialogAttr">
+		
+			<!-- <h4 style="background-color: gainsboro;text-align: center;padding: 10px;">权限设置</h4>	 -->
+			<el-form ref="form" :model="staffReqTmpWork[0].staff" label-width="60px">
+				
+				 <img
+				    style="width: 150px; height: 150px;margin: 20px;border-radius: 50%"
+				    :src="getheadUrl(staffReqTmpWork[0].staff.model)"
+				 					
+				    />
+				
+				<el-form-item :label="local('name')">
+					<el-input v-model="staffReqTmpWork[0].staff.name" class="shortInput" disabled></el-input>
+				</el-form-item>
+		
+				<el-form-item :label="local('department')">
+					<el-input v-model="staffReqTmpWork[0].staff.departmentName" class="shortInput" disabled></el-input>
+				</el-form-item>
+				
+				<el-form-item :label="local('post')" class="shortInput">
+					<el-input v-model="staffReqTmpWork[0].staff.post" disabled></el-input>
+				</el-form-item>
+
+				
+				<el-form-item :label="local('honest')" class="shortInput">
+					<el-input v-model="staffReqTmpWork[0].staff.honest" disabled></el-input>
+				</el-form-item>
+				
+				<el-form-item :label="local('tmpoffworkstarttime')" class="shortInput" label-width="90px">
+					<label  disabled>{{getStringTime(staffReqTmpWork[0].baseData.startTime)}}</label>
+				</el-form-item>
+				
+				<el-form-item :label="local('tmpoffworkendtime')" class="shortInput" label-width="90px">
+					<label disabled>{{getStringTime(staffReqTmpWork[0].baseData.endTime)}}</label>
+				</el-form-item>
+				
+		
+			</el-form>
+		
+		
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="staffTmpworkResult(false)">{{local('reject')}}</el-button>
+				<el-button type="primary" @click="staffTmpworkResult(true)">{{local('confirm')}}</el-button>
+			</div>
+		</el-dialog>
+		
+		
+		
+	
+	
+	</div>
+	
+	
+	 <script src="./vue.js"></script>
+	 <script src="./jquery-3.6.4.min.js"></script>
+	 <script src="./element.js"></script>
+	 <script src="./g.js"></script>
+	 <script src="./h.js"></script>
+	 <script src="./index.js"></script>
+	
+	<script>
+	
+	
+	</script>
+	
+	
+  </body>
+</html>

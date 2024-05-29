@@ -1,0 +1,241 @@
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+		<link rel="stylesheet" href="./element.css" type="text/css" />
+		<link rel="stylesheet" href="./style.css" type="text/css" />
+
+
+	</head>
+	<body>
+
+		<div id="app" style="width: 100%;height: 100%;display: flex;align-items: center;justify-content: center;"
+			v-cloak>
+
+
+			<div class="menu_parent panelBig">
+
+
+				<el-container v-if="company">
+					<el-header>
+						<el-row type="flex" class="row-bg" justify="end" align="middle">
+							<el-col :span="23">
+								<h2 style="text-align: center;">{{company.name}}</h2>
+							</el-col>
+
+							<el-col :span="1"><img width="34px" height="34px" v-on:click="close"
+									src="close_64.png" /></el-col>
+						</el-row>
+					</el-header>
+					<el-main>
+
+						<el-tabs v-model="actName" stretch="true">
+							<el-tab-pane :label="local('businesstitle')" :name="local('businesstitle')">
+								<el-button plain type="primary" v-on:click="addTask">{{local('addTask')}}</el-button>
+								<el-table :data="tasks" max-height="600" @row-click="rowClickTask" stripe
+									style="width: 100%;height: 100%;margin-top: 10px;">
+
+									<el-table-column prop="requestName" :label="local('requestMan')">
+									</el-table-column>
+									<el-table-column prop="responseName" :label="local('exeMan')">
+									</el-table-column>
+									<el-table-column prop="permissonName" :label="local('buisinessName')">
+									</el-table-column>
+
+									<el-table-column prop="cntTotal" :label="local('total')">
+									</el-table-column>
+									<el-table-column prop="cntCurrent" :label="local('complete')">
+									</el-table-column>
+								<!-- 	<el-table-column prop="workdays" :label="local('days')">
+									</el-table-column> -->
+									<el-table-column prop="createTime_" :label="local('createtime')">
+									</el-table-column>
+
+									<el-table-column :label="local('handle')">
+										<template slot-scope="scope">
+											<el-button type="danger" @click.stop="cancelTask(scope.row)" :disabled = "scope.row.permissonId != PERMISSION_Hire">{{local('cancel')}}</el-button>
+										</template>
+									</el-table-column>
+
+
+								</el-table>
+							</el-tab-pane>
+						</el-tabs>
+
+
+					</el-main>
+
+
+
+				</el-container>
+
+
+			</div>
+
+			<el-dialog v-if="taskTag" :title="local('createBuisiness')" :visible.sync="dialogAddTask">
+
+				<!-- <h4 style="background-color: gainsboro;text-align: center;padding: 10px;">权限设置</h4>	 -->
+				<el-form ref="form" :model="taskTag" label-width="80px" :rules="formRules">
+
+					<!-- <el-form-item label="发起人">
+						<el-select v-model="taskTag.requestId" placeholder="选择发起人">
+							<el-option v-for="staff in company.staffs" :label="staff.name"
+								:value="staff.id"></el-option>
+						</el-select>
+					</el-form-item> -->
+
+					<el-form-item :label="local('buisiness')" prop="permissonId">
+						<el-select v-model="taskTag.permissonId" :placeholder="local('choiceBuisiness')" @change="businessTypeChange">
+							<el-option v-for="permisson in ceoPermisson" :label="permisson.title"
+								:value="permisson.id"></el-option>
+						</el-select>
+
+
+
+						<!-- <el-form-item v-if="false">
+							<div v-if="taskTag.permissonId == 4" class="bgSub">
+
+								<el-form-item label="最低报酬" label-width="40px" class="shortInputVerMargin">
+									<el-input v-model="taskTag.data.min" type="number"></el-input>(万元)
+								</el-form-item>
+
+								<el-form-item label="最高报酬" label-width="40px" class="shortInputVerMargin">
+									<el-input v-model="taskTag.data.max" type="number"></el-input>(万元)
+								</el-form-item>
+							</div>
+
+
+						</el-form-item> -->
+
+					</el-form-item>
+
+
+
+					<el-form-item :label="local('exeMan')" prop="responseId">
+						<el-select v-model="taskTag.responseId" :placeholder="local('choiceExeMan')" @change="businessExeStaff"
+							:disabled="!taskTag.permissonId">
+							<el-option v-for="staff in company.staffs" :label="staff.name + ' ['+staff.departmentName+'-'+staff.post+']'" :disabled="!staff.disabled"
+								:value="staff.id"></el-option>
+						</el-select>
+					</el-form-item>
+
+
+					<div v-if="taskTag.permissonId&&taskTag.responseId" v-if="taskTag.permissonId == 2"
+						>
+
+
+						<el-form-item :label="local('department')" label-width="80px" class="shortInputVerMargin" prop="data.departmentId">
+							<el-select v-model="taskTag.data.departmentId" :placeholder="local('choicedp')">
+								<el-option v-for="department in company.departments" :label="department.name"
+									:value="department.id"></el-option>
+							</el-select>
+						</el-form-item>
+
+						
+
+						<el-form-item :label="local('filter')" label-width="80px" class="shortInputVerMargin" prop="data.matchLevel">
+							<el-select v-model="taskTag.data.matchLevel" :placeholder="local('choiceFilter')">
+								<el-option v-for="level in matchLevels" :label="level.txt"
+									:value="level.level"></el-option>
+							</el-select>
+						</el-form-item>
+
+						<el-form-item :label="local('salary')" label-width="80px" class="shortInputVerMargin" prop="data.salary">
+							<el-input v-model="taskTag.data.salary" type="number"></el-input>
+						</el-form-item>
+
+						<el-form-item :label="local('post')" label-width="80px" class="shortInputVerMargin" prop="data.post">
+							<el-input v-model="taskTag.data.post"></el-input>
+						</el-form-item>
+
+						<el-form-item :label="local('seat')" label-width="80px" class="shortInputVerMargin"  prop="data.seatId">
+							<el-select v-model="taskTag.data.seatId" :placeholder="local('choiceseat')">
+								<el-option v-for="chair in company.chairs" :key="chair.id" :label="chair.txt"
+									:value="chair.id" :disabled="!chair.enable">
+								</el-option>
+							</el-select>
+						</el-form-item>
+						
+						<el-form-item :label="local('ability')" label-width="80px" class="shortInputVerMargin" style="width: 100%;">
+								<!-- <el-select v-model="taskTag.data.skills" :multiple="!isLeaderSkill" placeholder="选择能力" @change="businessSkillSelect" :disabled="exeNonSelect" clearable>
+								<el-option v-for="skill in skills" :label="skill.name" :disabled="skill.disabled"
+									:value="skill.id"></el-option>
+							</el-select> -->
+						
+								<div>
+									<div style="display: flex;flex-direction: row;">
+										<el-radio-group v-model="postType">
+											<el-radio-button :label="local('manage')"></el-radio-button>
+											<el-radio-button :label="local('develop')" :disabled="exeNonSelect"></el-radio-button>
+																
+										</el-radio-group>
+															
+										<div style="margin-left: 10px;">
+																
+																
+											<el-select v-show="postType == local('develop')" v-model="skillsDevelModel" multiple collapse-tags
+												:placeholder="local('choiceAbility')" :disabled="exeNonSelect" @change="skillSelect">
+												<el-option v-for="skill in skillsDevel" :label="skill.name"
+													:disabled="skill.disabled" :value="skill.id"></el-option>
+											</el-select>
+																
+											<el-select v-show="postType == local('manage')" v-model="skillsManageModel"
+												:placeholder="local('choiceAbility')" :disabled="exeNonSelect" @change="skillSelect">
+												<el-option v-for="skill in skillsManage" :label="skill.name"
+													:disabled="skill.disabled" :value="skill.id"></el-option>
+											</el-select>
+																
+										</div>
+										
+										
+															
+									</div>
+															
+															
+									<label style="color: #a7a7a7;font-weight: bold;">{{adviceSalary}}</label>
+								</div>
+						
+						
+						
+						
+							</el-form-item>
+
+					</div>
+
+					
+					<!-- <div v-if="taskTag.responseId">
+					<el-form-item label="数量" class="shortInput">
+						<el-input v-model="taskTag.cntTotal"  type="number"></el-input>
+					</el-form-item>
+					
+					<el-form-item label="工作日" class="shortInput">
+						<el-input v-model="taskTag.workdays" type="number"></el-input>
+					</el-form-item>
+								
+					<el-form-item label="需要我审核"  label-width="100px">
+						<el-switch v-model="taskTag.reportUp_"></el-switch>
+					  </el-form-item>
+				</div> -->
+
+				</el-form>
+
+
+				<div slot="footer" class="dialog-footer">
+					<el-button v-if="!noDialogEdit" @click="dialogAddTask = false">{{local('cancel')}}</el-button>
+					<el-button v-if="!noDialogEdit" type="primary" @click="addTaskConfirm('form')">{{local('confirm')}}</el-button>
+				</div>
+			</el-dialog>
+
+		</div>
+
+
+
+		<script src="./vue.js"></script>
+		<script src="./jquery-3.6.4.min.js"></script>
+		<script src="./element.js"></script>
+		<script src="./g.js"></script>
+		<script src="./page_business.js"></script>
+
+	</body>
+</html>
